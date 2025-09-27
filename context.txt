@@ -1,0 +1,198 @@
+BESPOKE GENERALIZED COMPONENTS - IMPLEMENTATION CONTEXT
+========================================================
+
+This document provides precise implementation instructions for creating embedded applications using the Bespoke generalized components. Follow these instructions exactly to ensure consistency across all applications.
+
+REQUIRED FILES STRUCTURE
+========================
+
+Every application MUST include these files in the following order:
+
+1. bespoke.css (core styling framework)
+2. io.js (data persistence functions)
+3. auto-save.js (automatic data persistence)
+4. help-modal.js (help system)
+5. app.js (application logic)
+
+HTML TEMPLATE IMPLEMENTATION
+============================
+
+1. COPY template.html to your application directory
+2. REPLACE the following placeholders EXACTLY as specified:
+
+   a) <!-- APP_TITLE -->
+      Replace with your application's page title
+      Example: "Database Designer" or "Task Manager"
+
+   b) <!-- APP_NAME -->
+      Replace with your application's display name (appears in header)
+      Example: "Database Designer" or "Task Manager"
+
+   c) <!-- APP_SPECIFIC_HEADER_CONTENT -->
+      Add any additional header elements (buttons, controls, etc.)
+      Place BEFORE the spacer div
+      Example: <button id="btn-save">Save</button>
+
+   d) <!-- APP_SPECIFIC_MAIN_CONTENT -->
+      Add your application's main content area
+      This replaces the removed sidebar/content-area structure
+      Example: <div id="canvas"></div> or <div id="editor"></div>
+
+   e) <!-- APP_SPECIFIC_CSS -->
+      Add links to your application-specific CSS files
+      Example: <link rel="stylesheet" href="./my-app.css" />
+
+   f) <!-- APP_SPECIFIC_SCRIPTS -->
+      Add links to your application-specific JavaScript files
+      Example: <script src="./my-app-logic.js"></script>
+
+3. DO NOT modify the core structure (header, script loading order, etc.)
+4. DO NOT add sidebar or content-area divs unless specifically needed
+
+CSS IMPLEMENTATION
+==================
+
+1. ALWAYS use the .bespoke class on the body element
+2. USE ONLY the provided CSS custom properties for styling:
+   - Colors: --bespoke-bg, --bespoke-fg, --bespoke-accent, etc.
+   - Spacing: --bespoke-space-xs through --bespoke-space-2xl
+   - Typography: --bespoke-font-size-*, --bespoke-font-weight-*
+   - Borders: --bespoke-radius-*, --bespoke-stroke
+   - Shadows: --bespoke-shadow-*
+
+3. FOR custom styling, create app-specific CSS files
+4. OVERRIDE variables in your app-specific CSS, not in bespoke.css
+5. FOLLOW the existing naming conventions for consistency
+
+JAVASCRIPT IMPLEMENTATION
+=========================
+
+1. AUTO-SAVE SYSTEM SETUP:
+   a) Define your application data structure
+   b) Initialize AutoSave with these EXACT parameters:
+      - data: your data object
+      - filename: 'solution.json' (or your preferred filename)
+      - localStorageKey: 'yourapp:data' (use your app name)
+      - saveInterval: 1000 (milliseconds)
+      - onStatusChange: your status update function
+      - onDataChange: optional data change handler
+      - onError: optional error handler
+
+   c) Load existing data using autoSave.loadFromLocalStorage()
+   d) Call autoSave.markDirty() whenever data changes
+
+2. HELP MODAL SETUP:
+   a) Create help content using help-content-template.html as reference
+   b) Initialize HelpModal with:
+      - triggerSelector: '#btn-help'
+      - content: your help content (string or loaded from file)
+      - theme: 'auto'
+
+3. STATUS MANAGEMENT:
+   a) Use the provided setStatus() function for status updates
+   b) Update status for: loading, saving, errors, user actions
+   c) Keep status messages concise and informative
+
+4. DATA PERSISTENCE:
+   a) Use IO.saveToLocalStorage() for immediate saves
+   b) Use IO.saveToServer() for server persistence
+   c) Use IO.loadFromFile() for loading initial data
+   d) Always validate data using IO.validateData() before saving
+
+ERROR HANDLING REQUIREMENTS
+===========================
+
+1. WRAP all async operations in try-catch blocks
+2. PROVIDE meaningful error messages to users
+3. LOG errors to console for debugging
+4. IMPLEMENT retry logic for network operations
+5. HANDLE localStorage quota exceeded errors
+6. VALIDATE data before saving operations
+
+STATUS MESSAGE CONVENTIONS
+==========================
+
+Use these EXACT status messages for consistency:
+
+- "Ready" - Application loaded successfully
+- "Loading..." - Data is being loaded
+- "Saving..." - Data is being saved
+- "Changes saved" - Auto-save completed successfully
+- "Save failed (will retry)" - Server save failed, will retry
+- "Failed to load data" - Data loading failed
+- "Auto-save initialized" - Auto-save system started
+
+FILE NAMING CONVENTIONS
+=======================
+
+1. CSS files: kebab-case (e.g., my-app.css, task-manager.css)
+2. JavaScript files: kebab-case (e.g., my-app.js, task-manager.js)
+3. Data files: kebab-case (e.g., solution.json, initial-data.json)
+4. Image files: kebab-case (e.g., overview.png, help-icon.svg)
+
+TESTING REQUIREMENTS
+====================
+
+1. TEST auto-save functionality:
+   - Verify localStorage saves work
+   - Verify server saves work
+   - Verify retry logic on failures
+   - Verify status messages update correctly
+
+2. TEST help modal:
+   - Verify modal opens/closes correctly
+   - Verify keyboard navigation (ESC key)
+   - Verify focus management
+   - Verify content displays properly
+
+3. TEST responsive design:
+   - Verify layout works on mobile devices
+   - Verify header remains functional
+   - Verify help modal works on small screens
+
+4. TEST data persistence:
+   - Verify data survives page refresh
+   - Verify data loads from localStorage
+   - Verify data saves to server
+   - Verify error handling works
+
+INTEGRATION CHECKLIST
+=====================
+
+Before deploying, verify:
+
+□ HTML template placeholders replaced
+□ CSS uses only bespoke custom properties
+□ JavaScript follows the exact initialization pattern
+□ Auto-save system properly configured
+□ Help modal properly initialized
+□ Status messages follow conventions
+□ Error handling implemented
+□ File naming follows conventions
+□ Testing completed
+□ Documentation updated
+
+COMMON MISTAKES TO AVOID
+========================
+
+1. DO NOT modify bespoke.css directly
+2. DO NOT change the script loading order
+3. DO NOT use hardcoded colors or spacing values
+4. DO NOT skip error handling
+5. DO NOT forget to call markDirty() when data changes
+6. DO NOT use generic localStorage keys
+7. DO NOT skip status message updates
+8. DO NOT modify the header structure
+9. DO NOT add unnecessary wrapper divs
+10. DO NOT skip data validation
+
+SUPPORT AND MAINTENANCE
+=======================
+
+1. KEEP bespoke.css updated across all applications
+2. MAINTAIN consistent API usage
+3. DOCUMENT any custom modifications
+4. TEST changes across all applications
+5. FOLLOW semantic versioning for updates
+
+This context document ensures all applications maintain consistency and follow the established patterns. Deviations from these instructions will result in inconsistent user experiences and maintenance difficulties.

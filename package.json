@@ -1,0 +1,13 @@
+{
+  "name": "bespoke-generalized-server",
+  "version": "1.0.0",
+  "description": "Local development server for Bespoke generalized components",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["bespoke", "development", "server"],
+  "author": "",
+  "license": "MIT"
+}

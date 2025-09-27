@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title><!-- APP_TITLE --></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./bespoke.css" />
+  <!-- APP_SPECIFIC_CSS -->
+</head>
+<body class="bespoke">
+  <!-- Navigation Header -->
+  <header class="header">
+    <h1>APP NAME</h1>
+    <!-- APP_SPECIFIC_HEADER_CONTENT -->
+    <div class="spacer"></div>
+    <div id="status" class="status">Ready</div>
+    <button id="btn-help" class="as-button ghost">Help</button>
+  </header>
+
+  <!-- Main Application Content -->
+  <!-- APP_SPECIFIC_MAIN_CONTENT -->
+
+  <!-- Help Modal (automatically managed by help-modal.js) -->
+  <!-- The modal structure is created dynamically by the JavaScript -->
+
+  <!-- Core Scripts -->
+  <script src="./io.js"></script>
+  <script src="./auto-save.js"></script>
+  <script src="./help-modal.js"></script>
+  <!-- APP_SPECIFIC_SCRIPTS -->
+
+  <!-- App Initialization -->
+  <script>
+    // Initialize the help modal with your app-specific content
+    // Replace 'YOUR_HELP_CONTENT' with your actual help content
+    HelpModal.init({
+      triggerSelector: '#btn-help',
+      content: 'YOUR_HELP_CONTENT', // Replace with your help content
+      theme: 'auto'
+    });
+
+    // Your app-specific initialization code goes here
+  </script>
+</body>
+</html>
