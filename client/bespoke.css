@@ -119,8 +119,8 @@
 /* Dark Theme Override */
 @media (prefers-color-scheme: dark) {
   .bespoke {
-    --bespoke-bg: #303d56;                    /* dark background - rgb(48, 61, 86) */
-    --bespoke-secondary-bg: #26314c;          /* dark secondary background */
+    --bespoke-bg: #26314c;                    /* dark background - rgb(48, 61, 86) */
+    --bespoke-secondary-bg: #303d56;          /* dark secondary background */
     --bespoke-fg: #ffffff;                    /* light text */
     --bespoke-muted: rgb(193, 199, 215);      /* muted text */
     --bespoke-box: #26314c;                   /* dark surface */
