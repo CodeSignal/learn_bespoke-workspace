@@ -108,10 +108,12 @@ This template includes a local development server (`server.js`) that provides:
 ### Starting the Server
 
 ```bash
-node server.js
+npm run start:dev   # Vite + API for local development
+npm run build       # Create production build in dist/
+npm run start:prod  # Serve built assets from dist/
 ```
 
-The server will start on `http://localhost:3000` by default.
+The server will start on `http://localhost:3000` by default. `start:prod` expects `dist/` to exist (created via `npm run build`).
 
 ### WebSocket Messaging API
 
@@ -138,3 +140,31 @@ curl -X POST http://localhost:3000/message \
   -H "Content-Type: application/json" \
   -d '{"message": "Hello from the server!"}'
 ```
+
+## CI/CD and Automated Releases
+
+This template includes a GitHub Actions workflow (`.github/workflows/build-release.yml`) that automatically builds and releases your application when you push to the `main` branch.
+
+### How It Works
+
+When you push to `main`, the workflow will:
+
+1. **Build the project** - Runs `npm run build` to create production assets in `dist/`
+2. **Create a release tarball** - Packages `dist/`, `package.json`, `server.js`, and production `node_modules/` into `release.tar.gz`
+3. **Create a GitHub Release** - Automatically creates a new release tagged as `v{run_number}` with the tarball attached
+
+### Release Contents
+
+The release tarball (`release.tar.gz`) contains everything needed to deploy the application:
+- `dist/` - Built production assets
+- `package.json` - Project dependencies and scripts
+- `server.js` - Production server
+- `node_modules/` - Production dependencies only
+
+### Using Releases
+
+To deploy a release:
+
+1. Download `release.tar.gz` from the latest GitHub Release (e.g. with `wget`)
+2. Extract (and remove) the tarball: `tar -xzf release.tar.gz && rm release.tar.gz`
+3. Start the production server: `npm run start:prod`
