@@ -64,6 +64,14 @@ A template for creating consistent help content:
 
 4. **Implement your application logic**. You can use Cursor or other agents for it. There is a file called `AGENTS.md` that contains context LLM can use.
 5. **Customise your help content** using the help content template
+3. **Use Design System Components**
+   The template uses design system components directly. Use these classes:
+   - Buttons: `button button-primary`, `button button-secondary`, `button button-danger`, `button button-text`
+   - Boxes/Cards: `box card` for card containers
+   - Inputs: Add `input` class to input elements: `<input type="text" class="input" />`
+
+4. **Implement your application logic**. You can use Cursor or other agents for it. There is a file called `AGENTS.md` that contains context LLM can use.
+5. **Customise your help content** using the help content template
 
 ### Customizing Help Content
 
