@@ -1,14 +1,16 @@
 // example-app.js
 // Interactive Component Showcase Application
 
-(function() {
-  const status = document.getElementById('status');
+import Modal from '../design-system/components/modal/modal.js';
 
-  // App state
-  let counterValue = 0;
-  let incrementAmount = 1;
-  let counterLabel = 'Counter';
-  let dropdownInstance = null;
+const status = document.getElementById('status');
+
+// App state
+let counterValue = 0;
+let incrementAmount = 1;
+let counterLabel = 'Counter';
+let dropdownInstance = null;
+let helpModal = null;
 
   function setStatus(msg) {
     if (status) {
@@ -154,36 +156,46 @@
       const response = await fetch('./help-content.html');
       const helpContent = await response.text();
 
-      if (typeof HelpModal !== 'undefined') {
-        HelpModal.init({
-          triggerSelector: '#btn-help',
-          content: helpContent,
-          theme: 'auto'
+      // Create help modal with actual content
+      helpModal = Modal.createHelpModal({
+        title: 'Help / User Guide',
+        content: helpContent
+      });
+
+      // Bind help button click handler
+      const helpButton = document.getElementById('btn-help');
+      if (helpButton) {
+        helpButton.addEventListener('click', () => {
+          helpModal.open();
         });
-      } else {
-        console.error('HelpModal not found. Make sure help-modal.js is loaded.');
       }
     } catch (error) {
       console.error('Failed to load help content:', error);
-      if (typeof HelpModal !== 'undefined') {
-        HelpModal.init({
-          triggerSelector: '#btn-help',
-          content: '<p>Help content could not be loaded. Please check that help-content.html exists.</p>',
-          theme: 'auto'
+      // Fallback to placeholder content
+      helpModal = Modal.createHelpModal({
+        title: 'Help / User Guide',
+        content: '<p>Help content could not be loaded. Please check that help-content.html exists.</p>'
+      });
+
+      // Bind help button click handler
+      const helpButton = document.getElementById('btn-help');
+      if (helpButton) {
+        helpButton.addEventListener('click', () => {
+          helpModal.open();
         });
       }
     }
   }
 
   // Initialize everything when DOM is ready
-  function initialize() {
+  async function initialize() {
     setStatus('Loading...');
 
     // Initialize event listeners
     initializeEventListeners();
 
     // Initialize help modal
-    initializeHelpModal();
+    await initializeHelpModal();
 
     // Initialize dropdown after a short delay to ensure Dropdown class is loaded
     setTimeout(() => {
@@ -198,4 +210,3 @@
   } else {
     initialize();
   }
-})();
