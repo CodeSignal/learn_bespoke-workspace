@@ -21,6 +21,7 @@ if (isProduction && !fs.existsSync(DIST_DIR)) {
   throw new Error(`Production mode enabled but dist directory does not exist: ${DIST_DIR}`);
 }
 const PORT = process.env.PORT || 3000;
+const OPENAI_BASE_URL = (process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1').replace(/\/+$/, '');
 
 const wsClients = new Set();
 
@@ -185,7 +186,7 @@ ${JSON.stringify(event, null, 2)}
 
 Based on this event and the scenario context, what actions (if any) should be dispatched to other simulations? Return JSON: { "actions": [...], "reasoning": "..." }`;
 
-    const apiRes = await fetch('https://api.openai.com/v1/chat/completions', {
+    const apiRes = await fetch(`${OPENAI_BASE_URL}/chat/completions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -257,7 +258,7 @@ ${JSON.stringify(event, null, 2)}
 
 QUESTION: ${question}`;
 
-    const apiRes = await fetch('https://api.openai.com/v1/chat/completions', {
+    const apiRes = await fetch(`${OPENAI_BASE_URL}/chat/completions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
