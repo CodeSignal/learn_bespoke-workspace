@@ -10,6 +10,10 @@ export default class SimulationLoader {
     this._activeId = null;
     this._mountedModules = new Map();
     this._mountedSlots = new Map();
+    this._actionWrappers = new Map();
+
+    this._logBuffer = [];
+    this._logFlushTimer = null;
   }
 
   get activeId() {
@@ -81,9 +85,18 @@ export default class SimulationLoader {
       const context = {
         config: { ...sim, basePath },
         emit: (eventType, payload = {}) => {
+          this._pushLog({ simId: sim.id, dir: 'event', type: eventType, payload });
           this._eventBus.emit(eventType, { ...payload, simId: sim.id });
         }
       };
+
+      if (typeof module.onAction === 'function') {
+        const originalOnAction = module.onAction;
+        this._actionWrappers.set(sim.id, (action) => {
+          this._pushLog({ simId: sim.id, dir: 'action', type: action.type, payload: action.payload });
+          originalOnAction(action);
+        });
+      }
 
       if (typeof module.init === 'function') {
         module.init(context);
@@ -149,6 +162,11 @@ export default class SimulationLoader {
   }
 
   dispatchAction(simId, action) {
+    const wrapper = this._actionWrappers.get(simId);
+    if (wrapper) {
+      wrapper(action);
+      return;
+    }
     const module = this._mountedModules.get(simId);
     if (module && typeof module.onAction === 'function') {
       module.onAction(action);
@@ -161,5 +179,23 @@ export default class SimulationLoader {
         module.onMessage(msg);
       }
     }
+  }
+
+  _pushLog(entry) {
+    this._logBuffer.push({ ...entry, ts: new Date().toISOString() });
+    if (!this._logFlushTimer) {
+      this._logFlushTimer = setTimeout(() => this._flushLogs(), 1000);
+    }
+  }
+
+  _flushLogs() {
+    const entries = this._logBuffer.splice(0);
+    this._logFlushTimer = null;
+    if (entries.length === 0) return;
+    fetch('/api/log', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ entries })
+    }).catch(err => console.error('Failed to flush logs:', err));
   }
 }

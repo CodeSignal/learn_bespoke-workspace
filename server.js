@@ -25,6 +25,10 @@ const OPENAI_BASE_URL = (process.env.OPENAI_BASE_URL || 'https://api.openai.com/
 
 const wsClients = new Set();
 
+const LOG_DIR = path.join(__dirname, 'logs');
+const LOG_FILE = path.join(LOG_DIR, 'events.jsonl');
+if (!fs.existsSync(LOG_DIR)) fs.mkdirSync(LOG_DIR, { recursive: true });
+
 const mimeTypes = {
   '.html': 'text/html',
   '.js': 'text/javascript',
@@ -297,7 +301,34 @@ QUESTION: ${question}`;
   }
 }
 
+async function handleLogRequest(req, res) {
+  try {
+    const data = await readBody(req);
+    const entries = data.entries;
+    if (!Array.isArray(entries) || entries.length === 0) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'entries array is required' }));
+      return;
+    }
+    const lines = entries.map(e => JSON.stringify(e)).join('\n') + '\n';
+    fs.appendFile(LOG_FILE, lines, (err) => {
+      if (err) console.error('Failed to write log:', err);
+    });
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ ok: true, count: entries.length }));
+  } catch (error) {
+    console.error('Log endpoint error:', error);
+    res.writeHead(400, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: 'Invalid JSON' }));
+  }
+}
+
 function handlePostRequest(req, res, parsedUrl) {
+  if (parsedUrl.pathname === '/api/log') {
+    handleLogRequest(req, res);
+    return;
+  }
+
   if (parsedUrl.pathname === '/api/guard') {
     handleGuardRequest(req, res);
     return;
