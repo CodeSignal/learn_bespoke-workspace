@@ -142,7 +142,11 @@ export default class ScenarioEngine {
 
       const data = await res.json();
       if (data.actions && Array.isArray(data.actions)) {
-        this._dispatchActions(data.actions);
+        const sourceSimId = event.simId;
+        const actions = sourceSimId
+          ? data.actions.filter(a => a.target !== sourceSimId)
+          : data.actions;
+        this._dispatchActions(actions);
       }
     } catch (err) {
       console.error('LLM orchestration failed:', err);
