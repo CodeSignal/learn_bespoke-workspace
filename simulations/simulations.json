@@ -4,22 +4,22 @@
     {
       "id": "email-app",
       "name": "Email",
-      "basePath": "/simulations/email-app"
+      "url": "http://localhost:3010"
     },
     {
       "id": "pulse-chat",
       "name": "Pulse Chat",
-      "basePath": "/simulations/pulse-chat"
+      "url": "http://localhost:3011"
     },
     {
       "id": "docs-lib",
       "name": "Docs",
-      "basePath": "/simulations/docs-lib"
+      "url": "http://localhost:3012"
     },
     {
       "id": "task-board",
       "name": "Task Board",
-      "basePath": "/simulations/task-board"
+      "url": "http://localhost:3013"
     }
   ]
 }

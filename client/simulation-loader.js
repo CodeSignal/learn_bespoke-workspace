@@ -55,7 +55,7 @@ export default class SimulationLoader {
   }
 
   async _mountSim(sim) {
-    const basePath = sim.basePath || `/simulations/${sim.id}`;
+    const basePath = `/simulations/${sim.id}`;
 
     const slot = document.createElement('div');
     slot.className = 'sim-slot';
@@ -79,7 +79,7 @@ export default class SimulationLoader {
       this._mountedModules.set(sim.id, module);
 
       const context = {
-        config: sim,
+        config: { ...sim, basePath },
         emit: (eventType, payload = {}) => {
           this._eventBus.emit(eventType, { ...payload, simId: sim.id });
         }

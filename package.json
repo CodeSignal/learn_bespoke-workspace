@@ -6,9 +6,10 @@
   "scripts": {
     "start": "npm run start:prod",
     "start:prod": "IS_PRODUCTION=true node server.js",
-    "start:dev": "concurrently \"npm run dev:vite\" \"npm run dev:api\"",
+    "start:dev": "concurrently \"npm run dev:sims\" \"npm run dev:vite\" \"npm run dev:api\"",
     "dev:vite": "vite",
     "dev:api": "PORT=3001 node server.js",
+    "dev:sims": "concurrently -n email,chat,docs,tasks \"IS_PRODUCTION=true SERVE_DIR=module PORT=3010 node ../learn_bespoke-email-app/server.js\" \"IS_PRODUCTION=true SERVE_DIR=module PORT=3011 node ../learn_bespoke-pulse-chat/server.js\" \"IS_PRODUCTION=true SERVE_DIR=module PORT=3012 node ../learn_bespoke-docs-lib/server.js\" \"IS_PRODUCTION=true SERVE_DIR=module PORT=3013 node ../learn_bespoke-task-board/server.js\"",
     "build": "vite build"
   },
   "keywords": [

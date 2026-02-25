@@ -3,7 +3,6 @@ const fs = require('fs');
 const path = require('path');
 const url = require('url');
 
-// Try to load WebSocket module, fallback if not available
 let WebSocket = null;
 let isWebSocketAvailable = false;
 try {
@@ -17,19 +16,14 @@ try {
 
 const DIST_DIR = path.join(__dirname, 'dist');
 const SIMULATIONS_DIR = path.join(__dirname, 'simulations');
-// Check if IS_PRODUCTION is set to true
 const isProduction = process.env.IS_PRODUCTION === 'true';
-// In production mode, dist directory must exist
 if (isProduction && !fs.existsSync(DIST_DIR)) {
   throw new Error(`Production mode enabled but dist directory does not exist: ${DIST_DIR}`);
 }
-// Force port 3000 in production, otherwise use PORT environment variable or default to 3000
-const PORT = isProduction ? 3000 : (process.env.PORT || 3000);
+const PORT = process.env.PORT || 3000;
 
-// Track connected WebSocket clients
 const wsClients = new Set();
 
-// MIME types for different file extensions
 const mimeTypes = {
   '.html': 'text/html',
   '.js': 'text/javascript',
@@ -47,13 +41,11 @@ const mimeTypes = {
   '.eot': 'application/vnd.ms-fontobject'
 };
 
-// Get MIME type based on file extension
 function getMimeType(filePath) {
   const ext = path.extname(filePath).toLowerCase();
   return mimeTypes[ext] || 'text/plain';
 }
 
-// Serve static files
 function serveFile(filePath, res) {
   fs.readFile(filePath, (err, data) => {
     if (err) {
@@ -61,12 +53,84 @@ function serveFile(filePath, res) {
       res.end('File not found');
       return;
     }
-
     const mimeType = getMimeType(filePath);
     res.writeHead(200, { 'Content-Type': mimeType });
     res.end(data);
   });
 }
+
+// --- Simulation proxy registry ---
+
+let simUrlMap = new Map();
+
+function loadSimulationConfig() {
+  const configPath = path.join(SIMULATIONS_DIR, 'simulations.json');
+  try {
+    if (!fs.existsSync(configPath)) {
+      console.log('No simulations.json found -- proxy disabled, serving from filesystem');
+      return;
+    }
+    const raw = fs.readFileSync(configPath, 'utf8');
+    const config = JSON.parse(raw);
+    simUrlMap = new Map();
+    for (const sim of (config.simulations || [])) {
+      if (sim.url) {
+        simUrlMap.set(sim.id, sim.url);
+        console.log(`  Proxy: /simulations/${sim.id}/* -> ${sim.url}`);
+      }
+    }
+    if (simUrlMap.size === 0) {
+      console.log('No simulation URLs configured -- serving from filesystem');
+    }
+  } catch (err) {
+    console.error('Failed to load simulations.json:', err.message);
+  }
+}
+
+function proxyRequest(req, res, targetUrl) {
+  const parsed = new URL(targetUrl);
+
+  const options = {
+    hostname: parsed.hostname,
+    port: parsed.port || 80,
+    path: parsed.pathname + parsed.search,
+    method: req.method,
+    headers: { ...req.headers, host: parsed.host }
+  };
+
+  const proxyReq = http.request(options, (proxyRes) => {
+    res.writeHead(proxyRes.statusCode, proxyRes.headers);
+    proxyRes.pipe(res);
+  });
+
+  proxyReq.on('error', (err) => {
+    console.error(`Proxy error -> ${targetUrl}:`, err.message);
+    if (!res.headersSent) {
+      res.writeHead(502, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Simulation server unavailable' }));
+    }
+  });
+
+  req.pipe(proxyReq);
+}
+
+function tryProxy(req, res, pathName) {
+  if (!pathName.startsWith('/simulations/')) return false;
+
+  const rest = pathName.slice('/simulations/'.length);
+  const slashIdx = rest.indexOf('/');
+  const simId = slashIdx === -1 ? rest : rest.slice(0, slashIdx);
+  const simPath = slashIdx === -1 ? '/' : rest.slice(slashIdx);
+
+  const targetBase = simUrlMap.get(simId);
+  if (!targetBase) return false;
+
+  const targetUrl = targetBase.replace(/\/+$/, '') + simPath;
+  proxyRequest(req, res, targetUrl);
+  return true;
+}
+
+// --- Host API handlers ---
 
 function readBody(req) {
   return new Promise((resolve, reject) => {
@@ -78,76 +142,6 @@ function readBody(req) {
     });
     req.on('error', reject);
   });
-}
-
-function generateFallbackResponse() {
-  const responses = [
-    'Sounds good, let me look into that!',
-    'Got it, thanks for the update!',
-    'Makes sense. Let me know if you need anything else.',
-    'Good point! I\'ll follow up on that.',
-    'Sure thing, I\'ll get back to you shortly.',
-    'That works for me. Talk soon!',
-    'Interesting, I hadn\'t thought of it that way.',
-    'Appreciate the heads up! I\'ll take care of it.'
-  ];
-  return responses[Math.floor(Math.random() * responses.length)];
-}
-
-async function handleChatRequest(req, res) {
-  try {
-    const data = await readBody(req);
-    const { messages, persona } = data;
-
-    if (!messages || !Array.isArray(messages)) {
-      res.writeHead(400, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'messages array is required' }));
-      return;
-    }
-
-    const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) {
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ response: generateFallbackResponse() }));
-      return;
-    }
-
-    const systemMessage = {
-      role: 'system',
-      content: persona || 'You are a helpful coworker in a workplace chat. Keep responses brief, friendly, and conversational (1-3 sentences).'
-    };
-
-    const apiRes = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [systemMessage, ...messages],
-        max_tokens: 200,
-        temperature: 0.8
-      })
-    });
-
-    if (!apiRes.ok) {
-      console.error('OpenAI API error:', apiRes.status);
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ response: generateFallbackResponse() }));
-      return;
-    }
-
-    const result = await apiRes.json();
-    const reply = result.choices?.[0]?.message?.content || generateFallbackResponse();
-
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ response: reply }));
-  } catch (error) {
-    console.error('Chat endpoint error:', error);
-    res.writeHead(500, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ error: 'Internal server error' }));
-  }
 }
 
 async function handleOrchestrateRequest(req, res) {
@@ -249,7 +243,6 @@ async function handleGuardRequest(req, res) {
 
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
-      // No API key -- allow by default so the demo still works
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ allow: true }));
       return;
@@ -303,7 +296,6 @@ QUESTION: ${question}`;
   }
 }
 
-// Handle POST requests
 function handlePostRequest(req, res, parsedUrl) {
   if (parsedUrl.pathname === '/api/guard') {
     handleGuardRequest(req, res);
@@ -312,11 +304,6 @@ function handlePostRequest(req, res, parsedUrl) {
 
   if (parsedUrl.pathname === '/api/orchestrate') {
     handleOrchestrateRequest(req, res);
-    return;
-  }
-
-  if (parsedUrl.pathname === '/api/chat') {
-    handleChatRequest(req, res);
     return;
   }
 
@@ -367,18 +354,20 @@ function handlePostRequest(req, res, parsedUrl) {
   }
 }
 
-// Create HTTP server
+// --- HTTP server ---
+
 const server = http.createServer((req, res) => {
   const parsedUrl = url.parse(req.url, true);
   let pathName = parsedUrl.pathname === '/' ? '/index.html' : parsedUrl.pathname;
 
-  // Handle POST requests
+  if (tryProxy(req, res, parsedUrl.pathname)) return;
+
   if (req.method === 'POST') {
     handlePostRequest(req, res, parsedUrl);
     return;
   }
 
-  // Serve simulation files from simulations/ directory (both modes)
+  // Serve local simulation files (simulations.json, scenarios/) that aren't proxied
   if (pathName.startsWith('/simulations/')) {
     const simPath = pathName.replace(/^\/simulations\//, '');
     const filePath = path.join(SIMULATIONS_DIR, simPath);
@@ -397,7 +386,6 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // In production mode, serve static files from dist directory
   if (isProduction) {
     let filePath = path.join(DIST_DIR, pathName.replace(/^\/+/, ''));
 
@@ -413,16 +401,11 @@ const server = http.createServer((req, res) => {
 
     serveFile(filePath, res);
   } else {
-    // Development mode - static files are served by Vite
     res.writeHead(404, { 'Content-Type': 'text/plain' });
     res.end('Not found (development mode - use Vite dev server `npm run start:dev`)');
   }
 });
 
-// Create WebSocket server only if WebSocket is available
-// Note: WebSocket upgrade handling is performed automatically by the ws library
-// when attached to the HTTP server. The HTTP request handler should NOT send
-// a response for upgrade requests - the ws library handles the upgrade internally.
 if (isWebSocketAvailable) {
   const wss = new WebSocket.Server({
     server,
@@ -445,7 +428,8 @@ if (isWebSocketAvailable) {
   });
 }
 
-// Start server
+loadSimulationConfig();
+
 server.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
   if (isProduction) {
@@ -453,15 +437,15 @@ server.listen(PORT, () => {
   } else {
     console.log(`Development mode - static files served by Vite`);
   }
+  if (simUrlMap.size > 0) {
+    console.log(`Proxying ${simUrlMap.size} simulation(s)`);
+  }
   if (isWebSocketAvailable) {
     console.log(`WebSocket server running on /ws`);
-  } else {
-    console.log(`WebSocket functionality disabled - install 'ws' package to enable`);
   }
   console.log('Press Ctrl+C to stop the server');
 });
 
-// Handle server errors
 server.on('error', (err) => {
   if (err.code === 'EADDRINUSE') {
     console.error(`Port ${PORT} is already in use. Please try a different port.`);
@@ -471,7 +455,6 @@ server.on('error', (err) => {
   process.exit(1);
 });
 
-// Graceful shutdown
 process.on('SIGINT', () => {
   console.log('\nShutting down server...');
   server.close(() => {
