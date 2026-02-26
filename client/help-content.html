@@ -1,136 +1,46 @@
-<!-- Help Content Template for Bespoke Applications -->
-<!--
-  This template provides a consistent structure for help content across all
-  embedded applications. Customize the content while maintaining the structure.
--->
+<div class="help-content">
+  <h2>Workspace Overview</h2>
+  <p>This workspace simulates a launch-day scenario for the Horizon v2.0 product. Use the four integrated apps below to manage the launch.</p>
 
-<!-- Table of Contents Navigation -->
-<nav class="toc">
-  <strong>Contents</strong>
+  <h2>Email App</h2>
+  <p>A full email client with folders, search, and compose.</p>
   <ul>
-    <li><a href="#overview">Overview</a></li>
-    <li><a href="#getting-started">Getting Started</a></li>
-    <li><a href="#features">Key Features</a></li>
-    <li><a href="#workflow">Workflow</a></li>
-    <li><a href="#shortcuts">Shortcuts</a></li>
-    <li><a href="#faq">Troubleshooting / FAQ</a></li>
+    <li>Navigate between <strong>Inbox</strong>, <strong>Starred</strong>, <strong>Sent</strong>, <strong>Drafts</strong>, and <strong>Trash</strong></li>
+    <li>Click an email to read it, then <strong>Reply</strong>, <strong>Star</strong>, or <strong>Delete</strong></li>
+    <li>Click <strong>Compose</strong> to write a new email — start typing in the To field to pick from known contacts</li>
+    <li>Use the search bar to filter emails within the current folder</li>
   </ul>
-</nav>
 
-<!-- Overview Section -->
-<section id="overview">
-  <h2>Overview</h2>
-  <p>This page explains how to use the <!-- APP_NAME -->: <!-- BRIEF_DESCRIPTION -->.</p>
-  <!-- Optional: Add hero image -->
-  <!-- <img src="./img/overview.png" alt="Overview of the UI"> -->
-</section>
-
-<!-- Getting Started Section -->
-<section id="getting-started">
-  <h2>Getting Started</h2>
-  <p>To begin using the <!-- APP_NAME -->:</p>
-  <ol>
-    <li>First step...</li>
-    <li>Second step...</li>
-    <li>Third step...</li>
-  </ol>
-  <!-- Optional: Add screenshot -->
-  <!-- <img src="./img/getting-started.png" alt="Getting started screenshot"> -->
-</section>
-
-<!-- Key Features Section -->
-<section id="features">
-  <h2>Key Features</h2>
-
-  <h3>Feature 1</h3>
-  <p>Description of feature 1 and how to use it.</p>
-
-  <h3>Feature 2</h3>
-  <p>Description of feature 2 and how to use it.</p>
-
-  <h3>Feature 3</h3>
-  <p>Description of feature 3 and how to use it.</p>
-
-  <!-- Optional: Add feature screenshots -->
-  <!-- <img src="./img/features.png" alt="Key features demonstration"> -->
-</section>
-
-<!-- Workflow Section -->
-<section id="workflow">
-  <h2>Workflow</h2>
-  <p>Here's the typical workflow for using this application:</p>
-  <ol>
-    <li><strong>Step 1:</strong> Description of first workflow step</li>
-    <li><strong>Step 2:</strong> Description of second workflow step</li>
-    <li><strong>Step 3:</strong> Description of third workflow step</li>
-    <li><strong>Step 4:</strong> Description of fourth workflow step</li>
-  </ol>
-
-  <h3>Tips & Best Practices</h3>
+  <h2>Pulse Chat</h2>
+  <p>Instant messaging with your team members.</p>
   <ul>
-    <li>Tip 1: Description of best practice</li>
-    <li>Tip 2: Description of best practice</li>
-    <li>Tip 3: Description of best practice</li>
+    <li><strong>Sarah Chen</strong> — Engineering Manager, coordinating the launch</li>
+    <li><strong>Alex Rivera</strong> — Senior Engineer, investigating production issues</li>
+    <li><strong>Jordan Kim</strong> — Product Designer, dashboard &amp; onboarding UX</li>
   </ul>
-</section>
+  <p>Click a conversation, type a message, and press <strong>Enter</strong> to send. Teammates may reply automatically. Your messages can trigger events in other apps.</p>
 
-<!-- Shortcuts Section -->
-<section id="shortcuts">
-  <h2>Shortcuts</h2>
+  <h2>Docs Lib</h2>
+  <p>Shared document viewer with inline editing and comments.</p>
   <ul>
-    <li><strong>ESC</strong> - Close help modal</li>
-    <li><strong>Keyboard shortcut 1</strong> - Description of what it does</li>
-    <li><strong>Keyboard shortcut 2</strong> - Description of what it does</li>
-    <li><strong>Mouse action 1</strong> - Description of what it does</li>
-    <li><strong>Mouse action 2</strong> - Description of what it does</li>
+    <li><strong>Single-click</strong> a section to open the comment panel on the right side</li>
+    <li><strong>Double-click</strong> a section to edit it in place — press <strong>Escape</strong> to cancel, click outside or press <strong>Enter</strong> to save</li>
+    <li>Sections with comments show a blue left border and a count badge</li>
+    <li>The status table tracks launch milestones with color-coded statuses</li>
   </ul>
-</section>
 
-<!-- FAQ Section -->
-<section id="faq">
-  <h2>Troubleshooting / FAQ</h2>
+  <h2>Task Board</h2>
+  <p>A Kanban board with four columns: Pending, In Progress, Blocked, and Done.</p>
+  <ul>
+    <li>Click <strong>+</strong> in a column header to add a task with a title, description, and priority</li>
+    <li><strong>Drag and drop</strong> cards between columns to update status</li>
+    <li><strong>Click</strong> a priority badge (HIGH / MEDIUM / LOW) to cycle through levels</li>
+    <li>Priority is color-coded: <strong>red</strong> = High, <strong>orange</strong> = Medium, <strong>grey</strong> = Low</li>
+  </ul>
 
-  <details>
-    <summary>Common question 1?</summary>
-    <p>Answer to common question 1 with helpful details.</p>
-  </details>
-
-  <details>
-    <summary>Common question 2?</summary>
-    <p>Answer to common question 2 with helpful details.</p>
-  </details>
-
-  <details>
-    <summary>Common question 3?</summary>
-    <p>Answer to common question 3 with helpful details.</p>
-  </details>
-
-  <details>
-    <summary>How do I add images to the help?</summary>
-    <p>Place image files in the <code>help/img/</code> directory and reference them with relative paths like <code>&lt;img src="./img/example.png" alt="Description"&gt;</code></p>
-  </details>
-
-  <details>
-    <summary>Is my work automatically saved?</summary>
-    <p>Yes, the app saves your work automatically in the background.</p>
-  </details>
-</section>
-
-<!--
-  Additional sections you can add as needed:
-
-  <section id="advanced">
-    <h2>Advanced Features</h2>
-    <p>Advanced usage information...</p>
-  </section>
-
-  <section id="troubleshooting">
-    <h2>Troubleshooting</h2>
-    <p>Common issues and solutions...</p>
-  </section>
-
-  <section id="api">
-    <h2>API Reference</h2>
-    <p>Technical API documentation...</p>
-  </section>
--->
+  <h2>Tips</h2>
+  <ul>
+    <li>All data is saved in your browser's local storage and persists across refreshes</li>
+    <li>Your actions across apps are interconnected — chatting with a teammate or commenting on a doc may trigger responses in other apps</li>
+  </ul>
+</div>

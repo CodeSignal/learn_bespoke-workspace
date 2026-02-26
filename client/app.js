@@ -54,30 +54,34 @@ function initializeWebSocket() {
   }
 }
 
-async function initializeHelpModal() {
-  try {
-    const response = await fetch('./help-content.html');
-    const helpContent = await response.text();
+function initializeHelpModal() {
+  helpModal = Modal.createHelpModal({
+    title: 'Help / User Guide',
+    content: '<p>Loading...</p>'
+  });
 
-    helpModal = Modal.createHelpModal({
-      title: 'Help / User Guide',
-      content: helpContent
-    });
+  const helpButton = document.getElementById('btn-help');
+  if (helpButton) {
+    helpButton.addEventListener('click', async () => {
+      const activeId = loader?.activeId;
+      const url = activeId
+        ? `/simulations/${activeId}/help-content.html`
+        : './help-content.html';
 
-    const helpButton = document.getElementById('btn-help');
-    if (helpButton) {
-      helpButton.addEventListener('click', () => helpModal.open());
-    }
-  } catch (error) {
-    console.error('Failed to load help content:', error);
-    helpModal = Modal.createHelpModal({
-      title: 'Help / User Guide',
-      content: '<p>Help content could not be loaded.</p>'
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(res.status);
+        helpModal.setContent(await res.text());
+      } catch {
+        try {
+          const fallback = await fetch('./help-content.html');
+          helpModal.setContent(await fallback.text());
+        } catch {
+          helpModal.setContent('<p>Help content could not be loaded.</p>');
+        }
+      }
+      helpModal.open();
     });
-    const helpButton = document.getElementById('btn-help');
-    if (helpButton) {
-      helpButton.addEventListener('click', () => helpModal.open());
-    }
   }
 }
 
